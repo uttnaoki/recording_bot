@@ -22,7 +22,7 @@ if __name__ == '__main__':
     # sushida の初期化
     table_sushida = '''create table sushida (
                        id verchar(16),
-                       result int,
-                       gender varchar(32)
+                       name varchar(32),
+                       result int
                        )'''
     initialize_db(dbname, table_sushida)
