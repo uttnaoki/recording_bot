@@ -13,14 +13,18 @@ def mention_func(message):
     message.react('+1') # リアクション
 
 # sushida コマンド
-sushida_results = {}
 @respond_to('sushida')
 def update_sushida_result_table(message):
     # 各点数をまとめ，テキスト形式で返却
     def results_text():
+        conn = sqlite3.connect(dbpath)
+        cur = conn.cursor()
+        sql = 'SELECT * from sushida'
         text = ''
-        for id in sushida_results:
-            text += '{0}: {1}\n'.format(sushida_results[id]['name'], sushida_results[id]['result'])
+        for row in cur.execute(sql):
+            print(row)
+            text += '{0}: {1}\n'.format(row[1], row[2])
+        conn.close()
         return text
 
     # メッセージを取得し，空白で split
@@ -33,7 +37,7 @@ def update_sushida_result_table(message):
 
     # "sushida xxx" の xxx が10進数でなければ return
     if not text[1].isdecimal():
-        message.send('以下の様に，「sushida」の後に点数を入力してください．'
+        message.send('以下の様に，「sushida」の後に点数を入力してください．\n'
             + '@uttapp sushida 1000'
             )
         return
@@ -51,13 +55,6 @@ def update_sushida_result_table(message):
     user_id = message.user['id']
     user_name = message.user['real_name']
     user_result = int(text[1])
-    if user_id in sushida_results:
-        sushida_results[user_id]['result'] = user_result
-    else:
-        sushida_results[user_id] = {
-            'result': user_result,
-            'name': user_name
-        }
     update_sushida_db(user_id, user_name, user_result)
     message.send(results_text())
 
