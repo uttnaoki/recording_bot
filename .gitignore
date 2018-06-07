@@ -1,3 +1,11 @@
+# TOKEN ID とか記入する設定ファイル
 slackbot_settings.py
-__pycache__/
-*/__pycache__/*
+
+# DBディレクトリ
+DB
+
+# pycache
+*__pycache__/
+
+# for Mac
+*.DS_Store
