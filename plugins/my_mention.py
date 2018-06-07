@@ -1,16 +1,19 @@
 # coding: utf-8
 
+import sqlite3
 from slackbot.bot import respond_to     # @botname: で反応するデコーダ
 from slackbot.bot import listen_to      # チャネル内発言で反応するデコーダ
 from slackbot.bot import default_reply  # 該当する応答がない場合に反応するデコーダ
+
+dbpath = 'DB/sqlite3.db'
 
 @respond_to('hello')
 def mention_func(message):
     message.reply('hello') # メンション
     message.react('+1') # リアクション
 
+# sushida コマンド
 sushida_results = {}
-
 @respond_to('sushida')
 def update_sushida_result_table(message):
     # 各点数をまとめ，テキスト形式で返却
@@ -22,10 +25,12 @@ def update_sushida_result_table(message):
 
     # メッセージを取得し，空白で split
     text = message.body['text'].split()
+
     # メッセージが sushida だけなら return
     if len(text) < 2:
         message.send(results_text())
         return
+
     # "sushida xxx" の xxx が10進数でなければ return
     if not text[1].isdecimal():
         message.send('以下の様に，「sushida」の後に点数を入力してください．'
@@ -34,17 +39,27 @@ def update_sushida_result_table(message):
         return
 
     # 点数を更新(または結果一覧に追加)
+    def update_sushida_db(id, name, result):
+        conn = sqlite3.connect(dbpath)
+        c = conn.cursor()
+        sql = 'insert into sushida (id, name, result) values (?,?,?)'
+        user = (id, name, result)
+        c.execute(sql, user)
+        conn.commit()
+        conn.close()
+
     user_id = message.user['id']
     user_name = message.user['real_name']
-    this_result = int(text[1])
+    user_result = int(text[1])
     if user_id in sushida_results:
-        sushida_results[user_id]['result'] = this_result
+        sushida_results[user_id]['result'] = user_result
     else:
         sushida_results[user_id] = {
-            'result': this_result,
+            'result': user_result,
             'name': user_name
         }
     message.send(results_text())
+    update_sushida_db(user_id, user_name, user_result)
 
 @listen_to('kawarasoba')
 def listen_func(message):
