@@ -21,7 +21,7 @@ if __name__ == '__main__':
 
     # sushida の初期化
     table_sushida = '''create table sushida (
-                       id verchar(16),
+                       id verchar(16) PRIMARY KEY,
                        name varchar(32),
                        result int
                        )'''

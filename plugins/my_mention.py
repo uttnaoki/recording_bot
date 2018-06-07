@@ -42,7 +42,7 @@ def update_sushida_result_table(message):
     def update_sushida_db(id, name, result):
         conn = sqlite3.connect(dbpath)
         c = conn.cursor()
-        sql = 'insert into sushida (id, name, result) values (?,?,?)'
+        sql = 'INSERT OR REPLACE INTO sushida (id, name, result) VALUES (?,?,?)'
         user = (id, name, result)
         c.execute(sql, user)
         conn.commit()
@@ -58,8 +58,8 @@ def update_sushida_result_table(message):
             'result': user_result,
             'name': user_name
         }
-    message.send(results_text())
     update_sushida_db(user_id, user_name, user_result)
+    message.send(results_text())
 
 @listen_to('kawarasoba')
 def listen_func(message):
